@@ -1,7 +1,11 @@
 import gym
+import numpy as np
 
 from typing import Tuple
 from ..x_plane_connect import XPlaneConnect
+
+class NotXPlaneRunning(Exception):
+    pass
 
 class AirGym(gym.Env):
     """AirGym environment for RL agents."""
@@ -12,23 +16,22 @@ class AirGym(gym.Env):
         super().__init__()
         # Set action space to 4 dimensions (thrust, roll, pitch, yaw)
         self.action_space = gym.spaces.Box(low=-1, high=1, shape=(4,))
-        # Set observation space to 6 dimensions (phi, theta, psi, vx, vy, vz)
-        self.observation_space = gym.spaces.Box(low=-1, high=1, shape=(4,))
+        # Set observation space to 6 dimensions (phi, theta, vz)
+        self.observation_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(3,))
         # Store the X-Plane connection
         self.xp = XPlaneConnect()
         # Initiate X-Plane
         try:
-            self.xp.getDREF("sim/flightmodel/position/latitude")
+            self.xp.getDREF("sim/test/test_float")
         except:
-            raise Exception("X-Plane is not running.")
+            raise NotXPlaneRunning("Please start X-Plane before running this script.")
 
     def _get_obs(self) -> Tuple[float, float, float, float]:
-        # Return PHI, THETA, PSI, Vz, Vx, Vy
+        # Return phi, theta, psi and vz
         phi = self.xp.getDREF("sim/flightmodel/position/phi")[0]
         theta = self.xp.getDREF("sim/flightmodel/position/theta")[0]
-        psi = self.xp.getDREF("sim/flightmodel/position/psi")[0]
         vz = self.xp.getDREF("sim/flightmodel/position/local_vz")[0]
-        return [phi, theta, psi, vz]
+        return np.array([phi, theta, vz])
 
     def reset(self) -> Tuple[float, float, float, float]:
         """Reset the environment to the initial state."""
@@ -44,12 +47,17 @@ class AirGym(gym.Env):
         # Return initial observation
         return self._get_obs()
     
-    def step(self, action) -> Tuple[Tuple[float, float, float, float], float, bool, dict]:
+    def step(self, action, ki: float = 0.1, ) -> Tuple[Tuple[float, float, float, float], float, bool, dict]:
         """Take a step in the environment.
         
         Args:
             action (Tuple[float, float, float, float]): The action to take."""
         # Set the action to the aircraft
         self.xp.sendCTRL(action)
-        # Return the next observation, reward, and done
-        return self._get_obs(), 0, False, {}
+        # Compute the reward
+        obs = self._get_obs()
+        reward = 10 - ((obs[0] * 0.1)**3 + (obs[1] * 0.01)**2 + (obs[2] * 0.001) + 0.001)
+        # Send reward to X-Plane
+        self.xp.sendTEXT("Reward: " + str(reward))
+        # Return the next observation, reward, done and info
+        return obs, reward, False, {}
