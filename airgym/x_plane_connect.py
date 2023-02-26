@@ -6,7 +6,7 @@ class XPlaneConnect(object):
     socket = None
 
     # Basic Functions
-    def __init__(self, xpHost='localhost', xpPort=49009, port=0, timeout=100):
+    def __init__(self, xpHost='localhost', xpPort=49009, port=0, timeout=3600):
         """Sets up a new connection to an X-Plane Connect plugin running in X-Plane.
 
             Args:
