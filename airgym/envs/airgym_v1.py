@@ -28,10 +28,10 @@ class AirGym(gym.Env):
 
     def _get_obs(self) -> Tuple[float, float, float, float]:
         # Return phi, theta, psi and vz
-        phi = self.xp.getDREF("sim/flightmodel/position/phi")[0]
-        theta = self.xp.getDREF("sim/flightmodel/position/theta")[0]
         vz = self.xp.getDREF("sim/flightmodel/position/local_vz")[0]
-        return np.array([phi, theta, vz])
+        theta = self.xp.getDREF("sim/flightmodel/position/theta")[0]
+        phi = self.xp.getDREF("sim/flightmodel/position/phi")[0]        
+        return np.array([vz, theta, phi])
 
     def reset(self) -> Tuple[float, float, float, float]:
         """Reset the environment to the initial state."""
@@ -56,7 +56,7 @@ class AirGym(gym.Env):
         self.xp.sendCTRL(action)
         # Compute the reward
         obs = self._get_obs()
-        reward = 10 - ((obs[0] * 0.1)**3 + (obs[1] * 0.01)**2 + (obs[2] * 0.001) + 0.001)
+        reward = 10 - ((abs(obs[0]) * 0.1)**3 + (abs(obs[1]) * 0.01)**2 + (abs(obs[2]) * 0.001) + 0.001)
         # Send reward to X-Plane
         self.xp.sendTEXT("Reward: " + str(reward))
         # Return the next observation, reward, done and info
