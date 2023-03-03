@@ -1,4 +1,5 @@
 import gym
+import time
 import numpy as np
 
 from typing import Tuple
@@ -12,29 +13,44 @@ class AirGym(gym.Env):
 
     metadata = {"render.modes": ["human"]}
 
-    def __init__(self) -> None:
+    def __init__(self, xp: XPlaneConnect):
+        """Initialize the environment.
+        
+        Raises:
+            NotXPlaneRunning: If X-Plane is not running."""
         super().__init__()
         # Set action space to 4 dimensions (thrust, roll, pitch, yaw)
         self.action_space = gym.spaces.Box(low=-1, high=1, shape=(4,))
         # Set observation space to 6 dimensions (phi, theta, vz)
         self.observation_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(3,))
         # Store the X-Plane connection
-        self.xp = XPlaneConnect()
+        self.xp = xp
         # Initiate X-Plane
         try:
             self.xp.getDREF("sim/test/test_float")
         except:
             raise NotXPlaneRunning("Please start X-Plane before running this script.")
 
-    def _get_obs(self) -> Tuple[float, float, float, float]:
-        # Return phi, theta, psi and vz
-        vz = self.xp.getDREF("sim/flightmodel/position/local_vz")[0]
-        theta = self.xp.getDREF("sim/flightmodel/position/theta")[0]
-        phi = self.xp.getDREF("sim/flightmodel/position/phi")[0]        
-        return np.array([vz, theta, phi])
+    def _get_obs(self):
+        """Get the observation from X-Plane.
+        
+        Returns:
+            np.ndarray: The observation."""
+        # # Set the connection to the X-Plane server
+        # self.xp.setCONN(port=49009)
+        # Get the observation from X-Plane
+        obs = self.xp.getDREFs([
+            "sim/flightmodel/position/local_vz", 
+            "sim/flightmodel/position/theta", 
+            "sim/flightmodel/position/phi"]
+            )      
+        return obs
 
-    def reset(self) -> Tuple[float, float, float, float]:
-        """Reset the environment to the initial state."""
+    def reset(self):
+        """Reset the environment to the initial state.
+        
+        Returns:
+            np.ndarray: The initial observation."""
         # Initiate time UTC to 11:00 AM
         self.xp.sendDREF("sim/time/zulu_time_sec", 19 * 3600)
         # Initiate position to KSEA (Seattle, WA)
@@ -47,17 +63,23 @@ class AirGym(gym.Env):
         # Return initial observation
         return self._get_obs()
     
-    def step(self, action, ki: float = 0.1, ) -> Tuple[Tuple[float, float, float, float], float, bool, dict]:
+    def step(self, action):
         """Take a step in the environment.
         
         Args:
-            action (Tuple[float, float, float, float]): The action to take."""
+            action (Tuple[float, float, float, float]): The action to take.
+            
+        Returns:
+            Tuple[np.ndarray, float, bool, dict]: The next observation, reward, done and info."""
         # Set the action to the aircraft
-        self.xp.sendCTRL(action)
-        # Compute the reward
+        #self.xp.sendCTRL(action)
+        # Get the next observation
         obs = self._get_obs()
-        reward = 10 - ((abs(obs[0]) * 0.1)**3 + (abs(obs[1]) * 0.01)**2 + (abs(obs[2]) * 0.001) + 0.001)
+        # Calculate the reward
+        reward = 10 - (sum(obs) ** 0.5)
         # Send reward to X-Plane
-        self.xp.sendTEXT("Reward: " + str(reward))
+        self.xp.sendTEXT("Reward: " + str(round(reward, 3)))
+        # Add a delay to make sure the reward is sent
+        time.sleep(0.1)
         # Return the next observation, reward, done and info
         return obs, reward, False, {}
