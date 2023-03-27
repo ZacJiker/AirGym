@@ -1,5 +1,5 @@
 ![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)
-![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/zacjiker/airgym/build-and-publish.yml)
+![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/zacjiker/airgym/build.yml)
 ![GitHub all releases](https://img.shields.io/github/downloads/zacjiker/airgym/total)
 ![PyPI](https://img.shields.io/pypi/v/airgym)
 
