@@ -1,12 +1,10 @@
 # AirGym: A Reinforcement Learning Environment 🚀, GPL-3.0 License
 
 import gym
-import sys
 
 import numpy as np
 
 from time import sleep
-from loguru import logger
 
 from scipy.spatial.distance import pdist
 
@@ -50,8 +48,7 @@ class AirGym(gym.Env):
         try:
             self.xp.getDREF("sim/test/test_float")
         except:
-            logger.error("X-Plane is not running.")
-            sys.exit(1)
+            raise NotXPlaneRunning("X-Plane is not running.")
 
     def _get_obs(self):
         """Get the observation from X-Plane.
