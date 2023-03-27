@@ -1,3 +1,5 @@
+# AirGym: A Reinforcement Learning Environment 🚀, GPL-3.0 License
+
 import gym
 import sys
 

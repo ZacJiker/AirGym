@@ -1,7 +1,8 @@
+# AirGym: A Reinforcement Learning Environment 🚀, GPL-3.0 License
+
 from gym.envs.registration import register
 
-from airgym.spaces_definition import action_space, observation_space
-from airgym.x_plane_connect import XPlaneConnect
+__version__ = "0.0.1"
 
 register(
     id="AirGym-v1",
