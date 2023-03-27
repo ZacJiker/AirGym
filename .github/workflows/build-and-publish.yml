@@ -1,16 +1,12 @@
-name : Build and Publish Python Package
+name: Build and Publish Python Package
 
 on:
-  # Triggers the workflow on push or pull request events but only for the "stable" branch
   push:
     branches: [ "stable" ]
-
-# Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
   
 jobs:
-  
-   build-and-publish:
+  build-and-publish:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -25,8 +21,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           
-      - name: Install dependencies
+      - name: Create virtual environment
+        run: python -m venv airgym-env
+          
+      - name: Activate virtual environment
         run: |
+          source airgym-env/bin/activate
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           
@@ -47,7 +47,7 @@ jobs:
           name: codecov-umbrella
           verbose: true
           
-      - name: Install pypa/build
+      - name: Install build and Pypa
         run: python -m pip install build --user
           
       - name: Build a binary wheel and a source tarball
