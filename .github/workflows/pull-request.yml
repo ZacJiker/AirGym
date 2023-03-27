@@ -1,0 +1,24 @@
+name: Create Pull Request and Test
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  create-pull-request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: develop
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3.10.0
+        with:
+          title: Automatic Pull Request
+          body: |
+            This is an automatic pull request created by a GitHub Action.
+          commit-message: Automatic commit message
+          branch: stable
