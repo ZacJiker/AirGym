@@ -8,8 +8,8 @@ from time import sleep
 
 from scipy.spatial.distance import pdist
 
-from airgym import XPlaneConnect
-from airgym import action_space, observation_space
+from airgym.x_plane_connect import XPlaneConnect
+from airgym.spaces_definition import action_space, observation_space
 
 
 class NotXPlaneRunning(Exception):
