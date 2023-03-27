@@ -1,7 +1,7 @@
 name: Build and Publish Python Package
 
 on:
-  push:
+  merge:
     branches: [ "stable" ]
   workflow_dispatch:
   
