@@ -1,11 +1,11 @@
-import gym 
+import gym
 
 import numpy as np
 
 
 def action_space():
     """Get the action space.
-    
+
     Returns:
         gym.spaces.Box: The action space.
     """
@@ -23,4 +23,4 @@ def observation_space():
         high=np.array([180, 90, 180, 100, 100, 100, 200, 200, 200]),
         shape=(9,),
         dtype=np.float64
-        )
+    )
