@@ -1,8 +1,12 @@
 name: Build and Publish Python Package
 
 on:
-  merge:
+  pull_request:
     branches: [ "stable" ]
+  push:
+    branches: [ "stable" ]
+
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
   
 jobs:
